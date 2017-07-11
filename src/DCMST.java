@@ -62,8 +62,6 @@ public class DCMST {
 		new DCMST(args[0]).solve();
 	}
 
-	private static final String OUT_PUT_FILE = "DR.csv";
-
 	//***********************************************************************************
 	// VARIABLES
 	//***********************************************************************************
@@ -119,36 +117,26 @@ public class DCMST {
 		s.plugMonitor((IMonitorSolution) () -> {
             mainSearch.useLastConflict();
             mainSearch.configure(GraphStrategies.MIN_P_DEGREE, true);
-            System.out.println("Solution found : "+totalCost);
+            System.out.println("Solution: " + totalCost);
         });
 		// bottom-up optimization : find a first solution then reach the global minimum from below
 		s.setSearch(new ObjectiveStrategy(totalCost, OptimizationPolicy.BOTTOM_UP), mainSearch);
 		s.limitSolution(2); // therefore there is at most two solutions
-		long TIMELIMIT = 300000;
-		s.limitTime(TIMELIMIT); // time limit
+		long T4HOURS = 4 * 60 * 60 * 1000;
+		long TIMELIMIT = T4HOURS;
+		s.limitTime(TIMELIMIT);
 
 		// find optimum
 		model.setObjective(Model.MINIMIZE,totalCost);
 		while (s.solve()){
-			System.out.println(totalCost);
+			System.out.println("Solution: " + totalCost);
 		}
 
 		if (s.getSolutionCount() == 0 && s.getTimeCount() < TIMELIMIT/1000) {
 			throw new UnsupportedOperationException("Provided instances are feasible!");
 		}
-		String output = instance+";"+s.getSolutionCount()+";"+s.getBestSolutionValue()+";"
-				+s.getNodeCount()+";"+s.getFailCount()+";"+s.getTimeCount()+";\n";
-		write(output,OUT_PUT_FILE,false);
-	}
-
-	private static void write(String text, String file, boolean clearFirst){
-		try{
-			FileWriter writer = new FileWriter(file, !clearFirst);
-			writer.write(text);
-			writer.close();
-		}catch(IOException ex){
-			ex.printStackTrace();
-		}
+		System.out.println("Best: " + s.getBestSolutionValue());
+		System.out.println("Time: " + s.getTimeCount());
 	}
 
 	//***********************************************************************************
