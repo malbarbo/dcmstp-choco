@@ -38,6 +38,7 @@ import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 
 import java.io.*;
+import java.util.ArrayList;
 
 /**
  * Solves the Degree Constrained Minimum Spanning Tree Problem
@@ -117,7 +118,6 @@ public class DCMST {
 		s.plugMonitor((IMonitorSolution) () -> {
             mainSearch.useLastConflict();
             mainSearch.configure(GraphStrategies.MIN_P_DEGREE, true);
-            System.out.println("Solution: " + totalCost);
         });
 		// bottom-up optimization : find a first solution then reach the global minimum from below
 		s.setSearch(new ObjectiveStrategy(totalCost, OptimizationPolicy.BOTTOM_UP), mainSearch);
@@ -126,17 +126,29 @@ public class DCMST {
 		long TIMELIMIT = T4HOURS;
 		s.limitTime(TIMELIMIT);
 
+		ArrayList<String> sol = new ArrayList();
+
 		// find optimum
 		model.setObjective(Model.MINIMIZE,totalCost);
 		while (s.solve()){
-			System.out.println("Solution: " + totalCost);
+			System.out.println(totalCost);
+			sol.clear();
+			for (int i = 0; i < n; i++) {
+				for (int j: graph.getPotSuccOrNeighOf(i)) {
+					if (i < j) {
+						sol.add("" + i + "-" + j);
+					}
+				}
+			}
 		}
+		System.out.println("time = " + s.getTimeCount());
 
 		if (s.getSolutionCount() == 0 && s.getTimeCount() < TIMELIMIT/1000) {
-			throw new UnsupportedOperationException("Provided instances are feasible!");
+			System.out.println("solution = none");
+		} else {
+			System.out.println("solution = " + String.join(" ", sol));
 		}
-		System.out.println("Best: " + s.getBestSolutionValue());
-		System.out.println("Time: " + s.getTimeCount());
+		s.printStatistics();
 	}
 
 	//***********************************************************************************
