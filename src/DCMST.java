@@ -52,9 +52,14 @@ public class DCMST {
 	//***********************************************************************************
 
 	public static void main(String[] args) {
-		String dir = "src/test/java/org/chocosolver/samples/dcmstp";
-		String inst = "r123_300_1";
-		new DCMST(dir, inst).solve();
+		if (args.length != 1) {
+			System.err.printf(
+				"Invalid usage. One argument is required but %d was given",
+				args.length
+			);
+			System.exit(1);
+		}
+		new DCMST(args[0]).solve();
 	}
 
 	private static final String OUT_PUT_FILE = "DR.csv";
@@ -74,9 +79,10 @@ public class DCMST {
 	// CONSTRUCTOR
 	//***********************************************************************************
 
-	public DCMST(String dir, String inst) {
-		parse_T_DE_DR(new File(dir + "/" + inst));
-		instance = inst;
+	public DCMST(String path) {
+		File file = new File(path);
+		parse_T_DE_DR(file);
+		instance = file.getName();
 	}
 
 	//***********************************************************************************
