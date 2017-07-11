@@ -54,7 +54,7 @@ public class DCMST {
 	public static void main(String[] args) {
 		if (args.length != 1) {
 			System.err.printf(
-				"Invalid usage. One argument is required but %d was given",
+				"Invalid usage. One argument is required but %d was given\n",
 				args.length
 			);
 			System.exit(1);
@@ -81,7 +81,7 @@ public class DCMST {
 
 	public DCMST(String path) {
 		File file = new File(path);
-		parse_T_DE_DR(file);
+		parse(file);
 		instance = file.getName();
 	}
 
@@ -155,14 +155,38 @@ public class DCMST {
 	// PARSING
 	//***********************************************************************************
 
-	public boolean parse_T_DE_DR(File file) {
+	public boolean parse(File file) {
 		try {
 			BufferedReader buf = new BufferedReader(new FileReader(file));
 			String line = buf.readLine();
-			String[] numbers;
-			n = Integer.parseInt(line);
+			String[] numbers = line.split(" ");
+			n = Integer.parseInt(numbers[0]);
+			int m = Integer.parseInt(numbers[1]);
 			dist = new int[n][n];
 			dMax = new int[n];
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					dist[i][j] = -1;
+				}
+			}
+			int from, to, cost;
+			int min = 1000000;
+			int max = 0;
+			// parse edges
+			for (int i = 0; i < m; i++) {
+				line = buf.readLine();
+				numbers = line.split(" ");
+				from = Integer.parseInt(numbers[0]) - 1;
+				to = Integer.parseInt(numbers[1]) - 1;
+				cost = Integer.parseInt(numbers[2]);
+				min = Math.min(min, cost);
+				max = Math.max(max, cost);
+				if (dist[from][to] != -1 || dist[to][from] != -1) {
+					throw new UnsupportedOperationException();
+				}
+				dist[from][to] = dist[to][from] = cost;
+			}
+			// parse degrees
 			for (int i = 0; i < n; i++) {
 				line = buf.readLine();
 				numbers = line.split(" ");
@@ -170,30 +194,9 @@ public class DCMST {
 					throw new UnsupportedOperationException();
 				}
 				dMax[i] = Integer.parseInt(numbers[1]);
-				for (int j = 0; j < n; j++) {
-					dist[i][j] = -1;
-				}
-			}
-			line = buf.readLine();
-			int from, to, cost;
-			int min = 1000000;
-			int max = 0;
-			while (line != null) {
-				numbers = line.split(" ");
-				from = Integer.parseInt(numbers[0]) - 1;
-				to = Integer.parseInt(numbers[1]) - 1;
-				cost = Integer.parseInt(numbers[2]);
-				min = Math.min(min, cost);
-				max = Math.max(max, cost);
-				if (dist[from][to] != -1) {
-					throw new UnsupportedOperationException();
-				}
-				dist[from][to] = dist[to][from] = cost;
-				line = buf.readLine();
 			}
 			lb = (n - 1) * min;
 			ub = (n - 1) * max;
-			//            setUB(dirOpt, s);
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
