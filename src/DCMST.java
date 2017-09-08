@@ -53,14 +53,17 @@ public class DCMST {
 	//***********************************************************************************
 
 	public static void main(String[] args) {
-		if (args.length != 1) {
+		if (args.length == 1) {
+			new DCMST(0, args[0]).solve();
+		} else if (args.length == 2) {
+			new DCMST(Long.parseLong(args[0]), args[1]).solve();
+		} else {
 			System.err.printf(
-				"Invalid usage. One argument is required but %d was given\n",
+				"Invalid usage. One or two argument is required but %d was given\n",
 				args.length
 			);
 			System.exit(1);
 		}
-		new DCMST(args[0]).solve();
 	}
 
 	//***********************************************************************************
@@ -73,15 +76,17 @@ public class DCMST {
 	private int[][] dist;
 	private int lb, ub;
 	private String instance;
+	private long maxTime;
 
 	//***********************************************************************************
 	// CONSTRUCTOR
 	//***********************************************************************************
 
-	public DCMST(String path) {
+	public DCMST(long maxTime, String path) {
 		File file = new File(path);
 		parse(file);
 		instance = file.getName();
+		this.maxTime = maxTime;
 	}
 
 	//***********************************************************************************
@@ -122,9 +127,10 @@ public class DCMST {
 		// bottom-up optimization : find a first solution then reach the global minimum from below
 		s.setSearch(new ObjectiveStrategy(totalCost, OptimizationPolicy.BOTTOM_UP), mainSearch);
 		s.limitSolution(2); // therefore there is at most two solutions
-		long T4HOURS = 4 * 60 * 60 * 1000;
-		long TIMELIMIT = T4HOURS;
-		s.limitTime(TIMELIMIT);
+
+		if (maxTime != 0) {
+			s.limitTime(maxTime * 1000);
+		}
 
 		ArrayList<String> sol = new ArrayList();
 
@@ -143,7 +149,7 @@ public class DCMST {
 		}
 		System.out.println("time = " + s.getTimeCount());
 
-		if (s.getSolutionCount() == 0 && s.getTimeCount() < TIMELIMIT/1000) {
+		if (s.getSolutionCount() == 0 && s.getTimeCount() < maxTime/1000) {
 			System.out.println("solution = none");
 		} else {
 			System.out.println("solution = " + String.join(" ", sol));
