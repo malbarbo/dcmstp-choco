@@ -1,9 +1,28 @@
 DCMSTP ([Degree constraint minimum spanning tree
 problem](https://en.wikipedia.org/wiki/Degree-constrained_spanning_tree))
 solver extract from [choco-graph](https://github.com/chocoteam/choco-graph)
-samples. The solver is described in
-[this](http://www.lsis.org/jfpc-jiaf2013/jfpc/articles/papier_31.pdf) paper.
+samples. The solver is described in the paper [The salesman and the tree: the
+importance of search in CP](https://doi.org/10.1007/s10601-014-9178-2).
 
+This was extract from choco-graph to make it easy to use with
+[dcmstp-instances](https://github.com/malbarbo/dcmstp-instances).
+
+## Changes from the original code
+
+- Input parse and output printing
+- Time limit can be passed in the command line
+
+## Build
+
+```
+mvn package
+```
+
+## Usage
+
+```
+java -jar target/dcmstp-choco-4.1.1-shaded.jar [time limit in seconds] input-file
+```
 
 ## Input format
 
@@ -30,3 +49,7 @@ Example:
 3 3
 4 2
 ```
+
+## License
+
+This software is licensed under BSD license.
